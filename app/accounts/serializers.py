@@ -6,23 +6,18 @@ from .models import Author, User
 
 
 class AuthorSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
-        max_length=20,
-        validators=[UniqueValidator(queryset=User.objects.all())],
-        write_only=True
-    )
-    password = serializers.CharField(
-        max_length=20,
-        write_only=True
-    )
-    password_2 = serializers.CharField(
-        max_length=20,
-        write_only=True
-    )
+    username = serializers.CharField(max_length=20, write_only=True)
+    password = serializers.CharField(max_length=20, write_only=True)
+    password_2 = serializers.CharField(max_length=20, write_only=True)
 
     class Meta:
         model = Author
         exclude = ['user']
+
+    def validate(self, data):
+        if data['password'] != data['password_2']:
+            raise serializers.ValidationError("Пароли должны совпадать")
+        return data
 
     def create(self, validated_data):
         try:
@@ -38,11 +33,3 @@ class AuthorSerializer(serializers.ModelSerializer):
                 email=validated_data['email'],
             )
             return author
-
-    def validate(self, data):
-        if data['password'] != data['password_2']:
-            raise serializers.ValidationError("Пароли должны совпадать")
-        
-        if len(data['password']) > 8 or len(data['password']) < 8:
-            raise serializers.ValidationError("Пароли должны быть из 8 символоа")
-        return data
