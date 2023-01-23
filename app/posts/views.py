@@ -2,7 +2,7 @@ import telebot
 from django.conf import settings
 from rest_framework import viewsets, response, status, generics
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from posts.models import Posts, Comments, Rating
@@ -45,7 +45,7 @@ class CommentsList(generics.ListCreateAPIView):
 class CommentsDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
